@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: h77aZYKZ5JCWM3hj/RS35coQRn3SKXdfgxaN45PK+hxwkJi9X14QzaZFqaA2rYggPXs2r+jvqpRgOnKUjBAPUB6OUvgrah+9+WU+kDFaLkgCSokEnAW2PZR+K56X6G2VJv8xIz2eQe5h497HaKTtjhVMxx4IIoAMK3h4xvbtZoELArwO1Qc4oB2dM2jGmxZ66GMqTBfNCnt8+MZRd2xvD0bh8sEOjkchiftSCFRODHAZC2QusUAa2OeRt7lARZ0r5JtPOdQscniKfAUuWxsyDwbnB25tJd7EZAUMIlxsuOvOG05arJshaFSRyY+zaI2orKlHXoBtEbZajh1M/PO7eSq7Z5PmL25a1ZmMqvf+hjxdV4EQ+Ja9z6TeJdnbl2Ckb4lFDUv8TEcKeTLteR/NpOl/cMii/dVS37b0kSK+YdnFFI1rbNLsXpXTV3ojrOkQHd5StMhBraeoMWqs9j+MtlrQQtczUzSxUou2rRw0Z3dU2MPa/VsdgcwR0TTtmSz67YDBQJuaxY1EOlpwq12Azra9wbd9Ku5zdW1Y3kWSvK3k2EGGcMFBu2cGVQ3RmGT6IZa1q2jPHgrMFW0rkOJRohrd501db6eUzVJZkBantEcXPLkzMyzb1FA7c09rv48zwhKFQMa8x3lCHKFYI+D6vJAb10X1R9L0jh2MlD6++Ic=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Memoirs-of-Jacques-Casanova-de-Seingalt-1725-1798.-Volume-30--Old-Age-and-Death_2980
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
